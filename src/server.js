@@ -34,6 +34,14 @@ async function startServer(){
         app.listen(process.env.PORT)
         console.log('Escuchando en puerto: ',process.env.PORT);
 
+        app.use(async(req,res,next)=>{
+          res.set("Access-Control-AlloW-Origin","*");
+          res.set("Access-Control-AlloW-Headers","*");
+          res.set("Access-Control-AlloW-Methods","*");
+          
+          next()
+      })
+
         app.use(async(req, res, next) => {
           
             console.log('entra algo')
