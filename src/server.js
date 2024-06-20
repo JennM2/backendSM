@@ -39,6 +39,15 @@ async function startServer(){
             console.log('entra algo')
 
             pool.getConnection((err, connection) => {
+              console.log({
+                port : process.env.DB_PORT,
+                host: process.env.DB_HOST,
+                user: process.env.DB_USER,
+                password: process.env.DB_PASSWORD,
+                database: process.env.DB_NAME,
+                connectionLimit: 10, // Establecer el límite máximo de conexiones
+                queueLimit: 0,
+              })
               if (err) {
                 console.log(err);
                 return next(err); 
