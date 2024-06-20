@@ -1,4 +1,9 @@
 const mysql = require('../../database/database');
+const { exec } = require('child_process');
+const fs = require('fs');
+const path = require('path');
+const schedule = require('node-schedule');
+
 
 // Obtener datos del administrador
 const getAdmin = async (req, res) => {
@@ -32,4 +37,101 @@ const updateAdmin = async (req, res) => {
     }
 }
 
-module.exports = { getAdmin, updateAdmin };
+const getAllBackup = async (req,res) => {
+    try {
+        const folderbackUp = '../backup/';
+        fs.readdir(folderbackUp, async(err, files) => {
+            if (err) {
+                console.error(`Error al leer la carpeta: ${err}`);
+                return;
+            }
+
+            const list = [];
+            // Recorrer los archivos y obtener los metadatos
+            for (const file of files) {
+
+                const filePath = path.join(folderbackUp, file);
+                try {
+                const stats = await fs.promises.stat(filePath);
+                const fileObj = {
+                    name: file,
+                    size: `${stats.size} bytes`,
+                    createAt: stats.birthtime
+                };
+                list.push(fileObj);
+                } catch (error) {
+                console.error(`Error al obtener los metadatos de ${file}: ${error}`);
+                }
+            }
+            res.json(list);
+        });
+    } catch (error) {
+        console.log(error)
+        res.status(500).send({message:error});
+    }
+}
+
+const backup = async (res=false) => {
+    const date = Date.now();
+
+        const port = process.env.MYSQLPORT;
+        const host = process.env.MYSQLHOST;
+        const user = process.env.MYSQLUSER;
+        const password = process.env.MYSQLPASSWORD;
+        const database = process.env.MYSQLDATABASE;
+
+        const archive = `../backup/BackUp_${date}_.sql`;
+
+        const command = `mysqldump -h ${host} -P ${port} -u ${user} -p${password} ${database} > ${archive}`;
+
+        exec(command,(error, stdout, stderr) => {
+            if (error) {
+            console.error('Error al generar la copia de respaldo:', error);
+            throw new Error('Error al generar la copia de respaldo')
+            } else {
+                if(res){
+                    res.json({ message: 'Generado' });
+                    console.log('Copia de respaldo generada correctamente');
+                }else{
+                    console.log('Copia de respaldo generada correctamente');
+                    return true
+                }
+                
+            }
+        });
+}
+
+const generateBackup = async(req, res) => {
+    try {
+        backup(res)
+    } catch (error) {
+        console.log(error);
+        res.status(500).send({message:error});
+    }
+}
+
+const configTaskBackup = (req, res) => {
+    try {
+        console.log(req.body);
+        /*
+        let rule = new schedule.RecurrenceRule();
+        if(req.body.monthly){
+            rule.minute = 0
+        }else{
+            rule.second = 30
+        }
+        if(schedule.scheduledJobs['myBackUpTask']){
+            const tarea = schedule.scheduledJobs['myBackUpTask'];
+            tarea.reschedule(rule);
+        }else{
+        schedule.scheduleJob('myBackUpTask',rule, backup);
+        }*/
+
+        res.json({ message: 'Configurado' });
+    } catch (error) {
+        console.log(error)
+        res.status(500).send({message:error});
+    }
+}
+
+module.exports = { getAdmin, updateAdmin, generateBackup, getAllBackup, configTaskBackup};

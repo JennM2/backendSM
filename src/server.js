@@ -20,6 +20,7 @@ const { programmingRoute } = require('./features/programming/programmingRoute');
 const { pool } = require('./database/database');
 const { notificationRoute } = require('./features/notification/notificationRoute');
 const { paymentRoute } = require('./features/payments/paymentsRoute');
+require('dotenv').config();
 
 
 app.use(cors());

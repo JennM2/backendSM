@@ -1,0 +1,16 @@
+services:
+  server:
+    container_name: backendApp
+    build: .
+    environment:
+      - MYSQLPORT = ${MYSQLPORT},
+      - MYSQLHOST = ${MYSQLHOST},
+      - MYSQLUSER = ${MYSQLUSER},
+      - MYSQLPASSWORD = ${MYSQLPASSWORD},
+      - MYSQLDATABASE = ${MYSQLDATABASE},
+      - PORT = ${PORT}
+    ports:
+      - 3001:3001
+    volumes:
+      - .:/usr/src/app
+  

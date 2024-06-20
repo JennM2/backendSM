@@ -6,22 +6,27 @@
 
 # Want to help us make this template better? Share your feedback here: https://forms.gle/ybq9Krt8jtBL3iCk7
 
-ARG NODE_VERSION=14.17.1
 
-FROM node:${NODE_VERSION}-alpine
+FROM node
 
 # Use production node environment by default.
 ENV NODE_ENV production
-
-
 
 WORKDIR /usr/src/app
 
 COPY package*.json ./
 
+RUN npm install -g nodemon
+
 RUN npm install
 
-COPY . .
+RUN mkdir -p /usr/src/backup
+
+RUN apt update
+
+RUN apt install -y default-mysql-client
+
+
 # Download dependencies as a separate step to take advantage of Docker's caching.
 # Leverage a cache mount to /root/.npm to speed up subsequent builds.
 # Leverage a bind mounts to package.json and package-lock.json to avoid having to copy them into
