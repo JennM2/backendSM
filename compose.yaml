@@ -11,35 +11,19 @@ services:
   server:
     container_name: backendApp
     build: .
-    depends_on:
-      - db
     environment:
       - LIBELULA_API_KEY = 11bb10ce-68ba-4af1-8eb7-4e6624fed729
-      - DB_PORT = 3306
-      - DB_HOST = db
-      - DB_NAME = instituto
-      - DB_PASSWORD = password
+      - DB_PORT = 17393
+      - DB_HOST = monorail.proxy.rlwy.net
+      - DB_NAME = railway
+      - DB_PASSWORD = YVMMPBmkdIiHGrbnuoEVrPRuGYURqfnF
       - DB_USER = root
       - PORT = 3001
     ports:
       - 3001:3001
-    links:
-      - db
     volumes:
       - .:/usr/src/app
-  db:
-    image: mysql
-    restart: always
-    environment:
-      MYSQL_ROOT_PASSWORD: password
-      MYSQL_DATABASE: instituto
-      
-    ports:
-      - '3306:3306'
-    volumes:
-      - db-data:/var/lib/mysql
-volumes:
-  db-data:
+
 # The commented out section below is an example of how to define a PostgreSQL
 # database that your application can use. `depends_on` tells Docker Compose to
 # start the database before your application. The `db-data` volume persists the
