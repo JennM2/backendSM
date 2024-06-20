@@ -40,11 +40,10 @@ async function startServer(){
 
             pool.getConnection((err, connection) => {
               if (err) {
+                console.log(err);
                 return next(err); 
-              }
-          
+              }          
               req.db = connection;
-          
               res.on('finish', () => {
                 connection.release();
               });
