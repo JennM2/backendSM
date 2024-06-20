@@ -38,16 +38,7 @@ async function startServer(){
             console.log('entra algo')
 
             pool.getConnection((err, connection) => {
-              console.log({
-                port : process.env.MYSQLPORT,
-                host: process.env.MYSQLHOST,
-                user: process.env.MYSQLUSER,
-                password: process.env.MYSQLPASSWORD,
-                database: process.env.MYSQLDATABASE,
-                connectionLimit: 10, // Establecer el límite máximo de conexiones
-                queueLimit: 0
-              })
-              console.log(process.env);
+
               if (err) {
                 console.log(err);
                 return next(err); 
