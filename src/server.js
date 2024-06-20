@@ -47,6 +47,7 @@ async function startServer(){
                 connectionLimit: 10, // Establecer el límite máximo de conexiones
                 queueLimit: 0
               })
+              console.log(process.env);
               if (err) {
                 console.log(err);
                 return next(err); 
