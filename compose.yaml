@@ -12,13 +12,13 @@ services:
     container_name: backendApp
     build: .
     environment:
-      - LIBELULA_API_KEY = 11bb10ce-68ba-4af1-8eb7-4e6624fed729
-      - DB_PORT = 17393
-      - DB_HOST = monorail.proxy.rlwy.net
-      - DB_NAME = railway
-      - DB_PASSWORD = YVMMPBmkdIiHGrbnuoEVrPRuGYURqfnF
-      - DB_USER = root
-      - PORT = 3001
+      - LIBELULA_API_KEY = ${LIBELULA_API_KEY}
+      - DB_PORT = ${DB_PORT}
+      - DB_HOST = ${DB_HOST}
+      - DB_NAME = ${DB_NAME}
+      - DB_PASSWORD = ${DB_PASSWORD}
+      - DB_USER = ${DB_USER}
+      - PORT = ${PORT}
     ports:
       - 3001:3001
     volumes:
