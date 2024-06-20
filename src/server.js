@@ -44,7 +44,7 @@ async function startServer(){
 
         app.use(async(req, res, next) => {
           
-            console.log('entra algo')
+            console.log(`Entra: ${req.method} - ${req.path}`)
 
             pool.getConnection((err, connection) => {
 
