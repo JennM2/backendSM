@@ -78,7 +78,7 @@ const login = async (req, res) => {
         results = await req.db.promise().query(sql, [user, results.password]);
 
         results = results[0][0];
-
+        console.log(results);
         res.status(200).json({ message: 'Inicio de sesión exitoso', data:results });
     } catch (error) {
         console.error('Error al realizar la consulta:', error);
