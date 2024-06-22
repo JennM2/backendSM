@@ -134,4 +134,89 @@ const configTaskBackup = (req, res) => {
     }
 }
 
-module.exports = { getAdmin, updateAdmin, generateBackup, getAllBackup, configTaskBackup};
+const addAdmin = async (req, res) => {
+    try {
+        let { user, password, paterno, materno, names, ci, email, phone } =
+      req.body;
+    const rol = "Administrador";
+    const stateUser = "habilitado";
+
+    password =  cryptPass(password);
+
+    let errors = ''
+    if(!user)
+      errors += 'Usuario '
+    if(!password)
+      errors += 'Contrasena '
+    if(!names)
+      errors += 'Nombre '
+    if(!ci)
+      errors += 'CI '
+    if(!email)
+      errors += 'Correo '
+    if(!phone)
+      errors += 'Telefono '
+    if(!paterno)
+      errors += 'Ap_Paterno '
+    if(!materno)
+      errors += 'Ap_Materno '
+
+    if (!user || !password || !names || !ci || !email || !phone || !paterno || !materno) {
+      return res
+        .status(400)
+        .json({ message: `Debe ingresar: ${errors}` });
+    }
+
+    // Verificar si el usuario ya existe
+    const [duplicateResults] = await req.db.promise().query(
+      "SELECT COUNT(*) AS count FROM users WHERE user = ?",
+      [user]
+    );
+    if (duplicateResults[0].count > 0) {
+      return res
+        .status(400)
+        .json({ message: "El usuario ya existe en la base de datos" });
+    }
+
+    // Insertar nuevo secretario
+    const [insertResults] = await req.db.promise().query(
+      "INSERT INTO users (user, password, rol, paterno, materno, names, ci, email, phone, stateUser) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+      [
+        user,
+        password,
+        rol,
+        paterno,
+        materno,
+        names,
+        ci,
+        email,
+        phone,
+        stateUser,
+      ]
+    );
+
+    const idUser = insertResults.insertId; // Obtener el ID del usuario recién insertado
+
+    // Insertar el ID del usuario en la tabla secretaries
+
+    await req.db.promise().query("INSERT INTO admin (idUser) VALUES (?)", [idUser]);
+
+    // Obtener el ID del secretario recién insertado
+    const [adminResults] = await req.db.promise().query(
+      "SELECT idAdmin FROM admin WHERE idUser = ?",
+      [idUser]
+    );
+    const idAdmin = adminResults[0].idAdmin;
+
+    res
+      .status(201)
+      .json({ idAdmin, message: "Admin agregado correctamente" });
+    } catch (error) {
+        console.log(error)
+        res.status(500).send({message:error});
+    } finally {
+        req.db.release();
+    }
+}
+
+module.exports = { getAdmin, updateAdmin, generateBackup, getAllBackup, configTaskBackup, addAdmin};

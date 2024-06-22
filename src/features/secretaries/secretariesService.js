@@ -10,11 +10,7 @@ const addSecretary = async (req, res) => {
     const rol = "Secretario";
     const stateUser = "habilitado";
 
-    console.log(password);
-
     password =  cryptPass(password);
-
-    console.log(password);
 
     let errors = ''
     if(!user)
