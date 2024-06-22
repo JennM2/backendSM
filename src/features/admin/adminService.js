@@ -3,6 +3,7 @@ const { exec } = require('child_process');
 const fs = require('fs');
 const path = require('path');
 const schedule = require('node-schedule');
+const { cryptPass } = require('../../utils/utils');
 
 
 // Obtener datos del administrador
