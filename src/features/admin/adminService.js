@@ -22,21 +22,76 @@ const getAdmin = async (req, res) => {
 // Actualizar información del administrador
 const updateAdmin = async (req, res) => {
     try {
-        const idUser = req.params.id;
-        const { user, password, ci, email, phone, paterno, materno, names } = req.body;
+        const idAdmin = req.params.id;
 
-        // Verificar que los campos obligatorios no estén vacíos
-        if (!user || !password || !ci || !email || !phone) {
-            return res.status(400).json({ message: 'Todos los campos obligatorios deben estar presentes' });
+        let { password, paterno, materno, names, ci, email, phone, stateUser } = req.body;
+
+        let errors = ''
+        
+        if(!names)
+        errors += 'Nombre '
+        if(!ci)
+        errors += 'CI '
+        if(!email)
+        errors += 'Correo '
+        if(!phone)
+        errors += 'Telefono '
+        if(!paterno)
+        errors += 'Ap_Paterno '
+        if(!materno)
+        errors += 'Ap_Materno '
+
+        if (!names || !ci || !email || !phone || !paterno || !materno) {
+        return res
+            .status(400)
+            .json({ message: `Debe ingresar: ${errors}` });
         }
 
-        // Actualizar la información del administrador en la base de datos
-        await req.db.promise().query('UPDATE users SET user = ?, password = ?, paterno = ?, materno = ?, names = ?, ci = ?, email = ?, phone = ? WHERE idUser = ?', [user, password, paterno, materno, names, ci, email, phone, idUser]);
-        
-        res.json({ message: 'Información del administrador actualizada correctamente' });
+        const [adminResults] = await req.db.promise().query(
+            "SELECT * FROM admin WHERE idAdmin = ?",
+            [idAdmin]
+          );
+      
+          if (adminResults.length === 0) {
+            return res.status(404).json({ message: "Administrador no encontrado" });
+          }
+
+
+        // Obtener la contraseña actual del usuario
+        const [userResults] = await req.db.promise().query(
+            "SELECT users.password FROM users INNER JOIN admin ON users.idUser = admin.idUser WHERE admin.idAdmin = ?",
+            [idAdmin]
+        );
+    
+        if (userResults.length === 0) {
+            return res.status(404).json({ message: "Usuario no encontrado" });
+        }
+    
+        // Si no se proporciona una nueva contraseña, conservar la anterior
+        const currentPassword = userResults[0].password;
+        const newPassword = password ? cryptPass(password) : currentPassword;
+
+        await req.db.promise().query(
+            "UPDATE users INNER JOIN admin ON users.idUser = admin.idUser SET users.password = ?, users.paterno = ?, users.materno = ?, users.names = ?, users.ci = ?, users.email = ?, users.phone = ?, users.stateUser = ? WHERE secretaries.idSecretary = ?",
+            [
+              newPassword,
+              paterno,
+              materno,
+              names,
+              ci,
+              email,
+              phone,
+              stateUser,
+              idSecretary,
+            ]
+          );
+
+        res.status(200).json({ message: "Secretario actualizado correctamente" });
     } catch (error) {
         console.error('Error al actualizar administrador:', error);
         res.status(500).send('Error al actualizar información del administrador');
+    }  finally {
+        req.db.release()
     }
 }
 
