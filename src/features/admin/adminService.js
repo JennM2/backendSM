@@ -11,9 +11,8 @@ const getAdmin = async (req, res) => {
     try {
         const sql = `SELECT 
             adm.idAdmin, usr.user, usr.paterno, usr.materno, usr.names, usr.ci, usr.email, usr.phone, usr.stateUser 
-            FROM admin AS adm JOIN users AS usr ON adm.idUser = usr.idUser")`
+            FROM admin AS adm INNER JOIN users AS usr ON adm.idUser = usr.idUser`
         const [results] = await req.db.promise().query(sql);
-
         res.json(results);
     } catch (error) {
         console.error(error);
