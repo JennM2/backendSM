@@ -33,7 +33,6 @@ const getAllpayment = async (req, res) => {
             INNER JOIN teachers_subjects as teaSub ON en.idTeaSub = teaSub.idTeaSub
             INNER JOIN subjects as sub ON teaSub.idSubject = sub.idSubject
             INNER JOIN state_pay as sta ON pay.idStatePay = sta.idStatePay
-            
         `
         const [results] = await req.db.promise().query(sql,[idStudent]);
         res.json(results);

@@ -151,7 +151,9 @@ const getProfile = async (req, res) => {
       res.json(results[0]);
   } catch (error) {
       console.error({message:error});
-  }
+  }  finally {
+    req.db.release()
+}
 }
 
 module.exports = {

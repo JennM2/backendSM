@@ -7,6 +7,8 @@ const getAllDatesCareers = async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).send("Error al obtener carreras de la base de datos");
+  }  finally {
+    req.db.release()
   }
 };
 

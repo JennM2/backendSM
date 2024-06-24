@@ -179,7 +179,9 @@ const getAllSecretaries = async (req, res) => {
   } catch (error) {
     console.error("Error al obtener secretarios de la base de datos:", error);
     res.status(500).send("Error al obtener secretarios de la base de datos");
-  }
+  }  finally {
+    req.db.release()
+}
 };
 
 // Deshabilitar el estado de un secretario por el idSecretary
@@ -208,7 +210,9 @@ const disableSecretary = async (req, res) => {
       error:
         "Error del servidor al deshabilitar secretario en la base de datos",
     });
-  }
+  }  finally {
+    req.db.release()
+}
 };
 
 module.exports = {

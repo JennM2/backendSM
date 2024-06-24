@@ -16,6 +16,8 @@ const getAdmin = async (req, res) => {
         res.json(results);
     } catch (error) {
         console.error(error);
+    } finally {
+        req.db.release()
     }
 }
 
@@ -126,6 +128,8 @@ const getAllBackup = async (req,res) => {
     } catch (error) {
         console.log(error)
         res.status(500).send({message:error});
+    }  finally {
+        req.db.release()
     }
 }
 
@@ -165,6 +169,8 @@ const generateBackup = async(req, res) => {
     } catch (error) {
         console.log(error);
         res.status(500).send({message:error});
+    }  finally {
+        req.db.release()
     }
 }
 
@@ -189,6 +195,8 @@ const configTaskBackup = (req, res) => {
     } catch (error) {
         console.log(error)
         res.status(500).send({message:error});
+    }  finally {
+        req.db.release()
     }
 }
 
