@@ -281,7 +281,7 @@ const getEnablesByIdStudent = async (req,res) => {
 
         const idStudent = req.params.idStudent;
 
-        let sql = `SELECT sub.subject, en.schedule, en.groupe, CONCAT(usTea.paterno,' ', usTea.materno,' ', usTea.names) as nameTeacher,en.dateStart, en.dateEnd, en.idEnable
+        let sql = `SELECT sub.subject, en.schedule, en.groupe, CONCAT(usTea.paterno,' ', usTea.materno,' ', usTea.names) as nameTeacher,en.dateStart, en.dateEnd, en.idEnable, en.price
             FROM enable as en
             INNER JOIN teachers_subjects as teaSub ON en.idTeaSub = teaSub.idTeaSub
             INNER JOIN teachers as tea ON teaSub.idTeacher = tea.idTeacher
@@ -329,6 +329,7 @@ const getEnablesByIdStudent = async (req,res) => {
             nameTeacher: result.nameTeacher,
             dateStart: result.dateStart,
             dateEnd: result.dateEnd,
+            price: result.price,
             action: result.action
         }));
 
@@ -445,6 +446,27 @@ const getSubjectsByMonth = async(req, res) => {
     }
 }
 
-//Obtener 
+const getPriceSubjectByIdSubject = async(req, res) => {
+    try {
+        const idSubject = req.params.idSubject
+        const sql = `
+            SELECT en.month , en.price, count(pro.idProgramming) as students
+            FROM enable as en
+            INNER JOIN teachers_subjects as teaSub ON en.idTeaSub = teaSub.idTeaSub
+            INNER JOIN subjects as sub ON teaSub.idSubject = sub.idSubject
+            INNER JOIN programming as pro ON en.idEnable = pro.idEnable
+            WHERE sub.idSubject = ?
+            GROUP BY en.month, en.price
+        `
+        const [response] = await req.db.promise().query(sql,[idSubject]);
+        console.log(response);
+        res.json(response);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({message:error});
+    }finally{
+        req.db.release()
+    }
+}
 
-module.exports = { getAllActiveEnables, enableSubject, updateEnable, deleteEnable, cleanEnable, getActiveEnablesByTeacherId, getEnablesByIdStudent, finishEnableById, updateEvaluation, getSubjectsByMonth};
+module.exports = {getPriceSubjectByIdSubject, getAllActiveEnables, enableSubject, updateEnable, deleteEnable, cleanEnable, getActiveEnablesByTeacherId, getEnablesByIdStudent, finishEnableById, updateEvaluation, getSubjectsByMonth};

@@ -81,11 +81,11 @@ const addTeacher = async (req, res) => {
     const stateUser = "habilitado";
 
     const [existingUsers] = await req.db.promise().query(
-      "SELECT * FROM users WHERE user = ?",
-      [user]
+      "SELECT * FROM users WHERE user = ? OR ci = ?",
+      [user, ci]
     );
     if (existingUsers.length > 0) {
-      return res.status(400).json({ message: "El usuario ya existe" });
+      return res.status(400).json({ message: "El usuario o ci ya existe" });
     }
 
     // El usuario no existe, proceder con la inserción

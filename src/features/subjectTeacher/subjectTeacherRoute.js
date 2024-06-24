@@ -3,7 +3,7 @@ const subTeaRoute = express.Router();
 const { getAllSubjectTeacher, getAllSubjectsTeacherById,assignSubjectToTeacher, deleteSubjectAssignment, getTeacherAndSubjectDuration, getAllSubjectsTeacherByIdTeacher, changeStateTeacherSubject, getAllTeachersByIdSubject } = require('./subjectTeacherService');
 
 //rutas
-subTeaRoute.get('', getAllSubjectTeacher);
+subTeaRoute.get('/all/:year', getAllSubjectTeacher);
 subTeaRoute.get('/subjects', getAllSubjectsTeacherById);
 subTeaRoute.post('', assignSubjectToTeacher);
 subTeaRoute.delete('/:idTeaSub', deleteSubjectAssignment);

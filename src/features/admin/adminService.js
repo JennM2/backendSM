@@ -72,7 +72,7 @@ const updateAdmin = async (req, res) => {
         const newPassword = password ? cryptPass(password) : currentPassword;
 
         await req.db.promise().query(
-            "UPDATE users INNER JOIN admin ON users.idUser = admin.idUser SET users.password = ?, users.paterno = ?, users.materno = ?, users.names = ?, users.ci = ?, users.email = ?, users.phone = ?, users.stateUser = ? WHERE secretaries.idSecretary = ?",
+            "UPDATE users INNER JOIN admin ON users.idUser = admin.idUser SET users.password = ?, users.paterno = ?, users.materno = ?, users.names = ?, users.ci = ?, users.email = ?, users.phone = ?, users.stateUser = ? WHERE admin.idAdmin = ?",
             [
               newPassword,
               paterno,
@@ -82,7 +82,7 @@ const updateAdmin = async (req, res) => {
               email,
               phone,
               stateUser,
-              idSecretary,
+              idAdmin,
             ]
           );
 
@@ -277,4 +277,34 @@ const addAdmin = async (req, res) => {
     }
 }
 
-module.exports = { getAdmin, updateAdmin, generateBackup, getAllBackup, configTaskBackup, addAdmin};
+const disableAdmin = async (req, res) => {
+    try {
+        const idAdmin = req.params.idAdmin;
+
+        const [adminResults] = await req.db.promise().query(
+        "SELECT * FROM admin WHERE idAdmin = ?",
+        [idAdmin]
+        );
+
+        if (adminResults.length === 0) {
+        return res.status(404).json({ message: "Administrador no encontrado" });
+        }
+
+        await req.db.promise().query(
+        "UPDATE users INNER JOIN admin ON users.idUser = admin.idUser SET users.stateUser = ? WHERE admin.idAdmin = ?",
+        ["deshabilitado", idAdmin]
+        );
+
+        res.status(200).json({ message: "Administrador deshabilitado correctamente" });
+    } catch (error) {
+        console.error("Error al deshabilitar el secretario:", error);
+        res.status(500).json({
+        error:
+            "Error del servidor al deshabilitar secretario en la base de datos",
+        }); 
+    } finally {
+        req.db.release();
+    }
+}
+
+module.exports = { getAdmin, updateAdmin, generateBackup, getAllBackup, configTaskBackup, addAdmin, disableAdmin};

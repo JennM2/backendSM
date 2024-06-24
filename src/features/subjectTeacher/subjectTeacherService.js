@@ -3,31 +3,37 @@ const mysql = require("../../database/database");
 // obtener las materias asignadas ordenado por Carreras
 const getAllSubjectTeacher = async (req, res) => {
   try {
-    const [results] = await req.db.promise().query(`SELECT 
-        ts.idTeaSub, 
-        u.paterno, 
-        u.materno, 
-        u.names, 
-        c.career, 
-        sub.year, 
-        sub.preSubject,
-        sub.subject
-    FROM 
-        teachers_subjects ts
-    JOIN 
-        teachers t ON ts.idTeacher = t.idTeacher
-    JOIN 
-        users u ON t.idUser = u.idUser
-    JOIN 
-        subjects sub ON ts.idSubject = sub.idSubject
-    JOIN 
-        careers c ON sub.idCareer = c.idCareer
-    WHERE 
-        ts.stateTeaSub = 'habilitado'
-    ORDER BY 
-        FIELD(c.career, 'Sistemas informaticos', 'Mercadotecnia', 'Contaduria General', 'Secretariado'), 
-        sub.year, 
-        sub.subject`);
+    const year = req.params.year;
+    const sql = `
+      SELECT 
+          ts.idTeaSub, 
+          u.paterno, 
+          u.materno, 
+          u.names, 
+          c.career, 
+          sub.year, 
+          sub.preSubject,
+          sub.subject
+      FROM 
+          teachers_subjects ts
+          ${year==='0'?'':`JOIN enable en ON en.idTeaSub = ts.idTeaSub`}
+      JOIN 
+          teachers t ON ts.idTeacher = t.idTeacher
+      JOIN 
+          users u ON t.idUser = u.idUser
+      JOIN 
+          subjects sub ON ts.idSubject = sub.idSubject
+      JOIN 
+          careers c ON sub.idCareer = c.idCareer
+      WHERE 
+          ts.stateTeaSub = 'habilitado'
+          ${year==='0'?'':`AND en.month like "%${year}%"`}
+      ORDER BY 
+          FIELD(c.career, 'Sistemas informaticos', 'Mercadotecnia', 'Contaduria General', 'Secretariado'), 
+          sub.year, 
+          sub.subject
+    `
+    const [results] = await req.db.promise().query(sql);
     res.json(results);
   } catch (error) {
     console.error("Error al ejecutar la consulta:", error);

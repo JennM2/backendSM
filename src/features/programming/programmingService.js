@@ -201,8 +201,41 @@ const getAllEvaluationByIdStudent = async (req, res) => {
     }
 }
 
+const getHistoryByIdStudent = async (req, res) => {
+    try {
+        const idStudent = req.params.idStudent;
 
-module.exports = { getAllCareerByIdStudent, getAllSubjectsByCareer, AddProgramming, getNotesByIdStudent, getAllStudentsByIdEnable, updateNotes, getAllEvaluationByIdStudent };
+        let sql = `
+        SELECT sub.subject, en.month, pro.final
+            FROM programming as pro
+            INNER JOIN enable AS en ON pro.idEnable = en.idEnable
+            INNER JOIN teachers_subjects AS teaSub ON en.idTeaSub = teaSub.idTeaSub
+            INNER JOIN subjects as sub ON teaSub.idSubject = sub.idSubject
+            WHERE 
+                pro.idStudent = ? AND
+                en.stateSubject = 'Finalizado'
+            ORDER BY sub.subject, pro.datePro`
+
+        let [result] = await req.db.promise().query(sql, [idStudent]);
+        res.json(result);
+    } catch (error) {
+        console.log(error);
+        return res.status(500).send({ message: error });
+    } finally {
+        req.db.release()
+    }
+}
+
+
+module.exports = { getAllCareerByIdStudent,
+     getAllSubjectsByCareer,
+     AddProgramming,
+     getNotesByIdStudent,
+     getAllStudentsByIdEnable,
+     updateNotes,
+     getAllEvaluationByIdStudent,
+     getHistoryByIdStudent
+    };
 
 
 
