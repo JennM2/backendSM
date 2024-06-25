@@ -2,7 +2,7 @@ const { checkFields } = require("../../utils/utils");
 
 const getAllNotifications = async (req,res) => {
     try {
-        const sql = `SELECT tn.notification, n.message, n.dateNot FROM notifications AS n INNER JOIN type_notifications AS tn ON n.idTypNot = tn.idTypNot`
+        const sql = `SELECT n.idNotification, tn.notification, n.message, n.dateNot FROM notifications AS n INNER JOIN type_notifications AS tn ON n.idTypNot = tn.idTypNot`
         const [results] = await req.db.promise().query(sql);
         res.json(results);
     } catch (error) {
