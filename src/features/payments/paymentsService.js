@@ -62,7 +62,6 @@ const addPayment = async(req, res) => {
             const data = {"appkey": process.env.APIKEY,
                 "identificador": '8888888888000000' + Number(idPayment)}
             results = await axios.post(process.env.APIIDENTIFY,data)
-            console.log(results.data);
 
             ///Verificamos si la deuda expiro
             if(!results.data.datos.deuda_expirada){
@@ -133,7 +132,7 @@ const addPayment = async(req, res) => {
     }
 }
 
-const confirmPay = async (req, res) => {
+const confirmPay = async (req) => {
     try {
         const idTransaction = req.query.transaction_id
 
@@ -145,7 +144,41 @@ const confirmPay = async (req, res) => {
         result = result[0]
         await AddProgramming(result.idEnable, result.idStudent, idTransaction, req);
 
-        return res.json();
+        return result.idEnable;
+    } catch (error) {
+        console.error(error);
+    } finally {
+        req.db.release()
+    }
+}
+
+const updatePay = async(req, res) => {
+    try {
+        const {idStudent} = req.params;
+        let sql = `
+            SELECT * 
+            FROM payments
+            WHERE idStudent = ? AND idStatePay = 2
+        `
+        const [result] = await req.db.promise().query(sql,[idStudent]);
+        const finalResult = [];
+        for (let index = 0; index < result.length; index++) {
+            const element = result[index];
+            const results = await axios.post('https://api.libelula.bo/rest/deuda/consultar_deudas/por_identificador',
+                {
+                    "appkey": process.env.APIKEY,
+                    "identificador": '8888888888000000' + Number(element.idPayment)
+                }
+            );
+            const item = results.data
+            if(item.datos !== null){
+                if(item.datos.pagado){
+                    req.query.transaction_id = element.idTransaction;
+                    finalResult.push(await confirmPay(req));
+                }
+            }
+        }
+        return res.json(finalResult);
     } catch (error) {
         console.error(error);
         res.status(500).json(error);
@@ -154,4 +187,4 @@ const confirmPay = async (req, res) => {
     }
 }
 
-module.exports = {getAllpaymentbyIdStudent, getAllpayment, addPayment, confirmPay}
+module.exports = {getAllpaymentbyIdStudent, getAllpayment, addPayment, confirmPay, updatePay}
