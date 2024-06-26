@@ -57,37 +57,18 @@ const getAllSubjectsByCareer = async (req, res) => {
 };
 
 //Programar un materia de un estudiante
-const AddProgramming = async (req, res) => {
-
+const AddProgramming = async (idEnable, idStudent, idTransaction, req) => {
     try {
-        const { idStudent, idEnable } = req.body;
-        const { numberCard, cvcCard, dateCard } = req.body.payment.card;
-        const { amount } = req.body.payment;
-
-        const errors = checkFields({
-            Estudiante: idStudent,
-            Habilitacion: idEnable,
-            'Numero de tarjeta': numberCard,
-            'Codigo CVC': cvcCard,
-            'dateCard': dateCard,
-            'monto': amount
-        })
-        if (errors)
-            return res.status(500).send({ message: `Debe ingresar: ${errors}` });
-
-        setTimeout(async () => {
             let sql = `INSERT INTO programming(idStudent, idEnable, datePro, parcialOne, parcialTwo, parcialThree, avgParcial, practices, exam, final, stateEvaluation) 
                 VALUES (?, ?, NOW(), 0, 0, 0, 0, 0, 0, 0, "NO")`;
             const result = await req.db.promise().query(sql, [idStudent, idEnable]);
-            sql = 'INSERT INTO payments (idStudent, amount, datePay, idStatePay, idProgramming) VALUES (?, ?, NOW(), 1, ?)';
-            await req.db.promise().query(sql, [idStudent, amount, result[0].insertId]);
-            return res.json('correct');
-        }, 5000);
+            const idProgramming = result[0].insertId;
+            sql = 'UPDATE payments SET idProgramming = ? WHERE idTransaction = ?';
+            await req.db.promise().query(sql, [idProgramming, idTransaction]);
+            return true
     } catch (error) {
         console.log(error);
-        return res.status(500).send({ message: error });
-    } finally {
-        req.db.release()
+        return false
     }
 }
 

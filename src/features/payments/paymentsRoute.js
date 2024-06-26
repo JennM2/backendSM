@@ -1,5 +1,5 @@
 const express = require("express");
-const { getAllpaymentbyIdStudent, getAllpayment } = require("./paymentsService");
+const { getAllpaymentbyIdStudent, getAllpayment, addPayment, confirmPay } = require("./paymentsService");
 const paymentRoute = express.Router();
 
 
@@ -7,5 +7,10 @@ const paymentRoute = express.Router();
 paymentRoute.get("", getAllpayment);
 
 paymentRoute.get("/:idStudent", getAllpaymentbyIdStudent);
+
+paymentRoute.post("", addPayment);
+
+paymentRoute.post('/confirmPay', confirmPay);
+paymentRoute.get('/confirmPay', confirmPay);
 
 module.exports = { paymentRoute };

@@ -6,7 +6,6 @@ const { getAllCareerByIdStudent,getAllSubjectsByCareer, AddProgramming, getNotes
 
 programmingRoute.get('/:idStudent', getAllCareerByIdStudent);
 programmingRoute.get('/career/:career',getAllSubjectsByCareer);
-programmingRoute.post('', AddProgramming);
 programmingRoute.get('/notesByIdStudent/:idStudent', getNotesByIdStudent);
 programmingRoute.get('/notesHistoryByIdStudent/:idStudent', getHistoryByIdStudent);
 programmingRoute.get('/allStudents/:idEnable', getAllStudentsByIdEnable);
