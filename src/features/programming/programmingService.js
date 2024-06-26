@@ -163,7 +163,7 @@ const getAllEvaluationByIdStudent = async (req, res) => {
             SELECT pro.idProgramming, sub.subject, en.month, en.schedule, en.groupe, CONCAT(us.paterno,' ' ,us.materno,' ' ,us.names) as fullName
             FROM enable AS en
             INNER JOIN programming AS pro ON en.idEnable = pro.idEnable
-            INNER JOIN teachers_subjects AS TeaSub ON teaSub.idTeaSub = en.idTeaSub
+            INNER JOIN teachers_subjects AS teaSub ON teaSub.idTeaSub = en.idTeaSub
             INNER JOIN subjects AS sub ON teaSub.idSubject = sub.idSubject
             INNER JOIN teachers AS tea ON teaSub.idTeacher = tea.idTeacher
             INNER JOIN users AS us ON tea.idUser = us.idUser
