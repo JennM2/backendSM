@@ -291,6 +291,9 @@ const getEnablesByIdStudent = async (req,res) => {
             INNER JOIN students as st ON car.idCareer = st.idCareer
             WHERE 
                 st.idStudent = ? AND
+                en.stateEnable = 'habilitado' AND
+                NOW() BETWEEN en.dateStart AND en.dateEnd AND
+                en.stateSubject = 'En progreso' AND
                 (
                     en.idEnable NOT IN (
                     SELECT idEnable 

@@ -54,6 +54,7 @@ const addPayment = async(req, res) => {
             FROM payments WHERE
             idStudent = ? AND idEnable = ? AND idStatePay in (1,2)
         `
+        /*
         let [results] = await req.db.promise().query(sql,[idStudent, idEnable]);
 
         ///Verificar si existe pagos pendientes o finalizados para el enable
@@ -72,7 +73,7 @@ const addPayment = async(req, res) => {
                 `
                 await req.db.promise().query(sql,[idPayment]);
             }
-        }
+        }*/
 
         ///Insertamos nuevo pago con pago pendiente
         sql = `
@@ -82,6 +83,7 @@ const addPayment = async(req, res) => {
         const idPayment = results[0].insertId;
         const today = new Date().toISOString().slice(0,10);
 
+        /*
         ///Generamos deuda en API libelula
         sql = `
             SELECT us.email, us.names, CONCAT(us.paterno,' ',us.materno) as lastName, us.ci
@@ -122,8 +124,10 @@ const addPayment = async(req, res) => {
 
         sql = 'UPDATE payments SET idTransaction = ? where idPayment = ?';
         await req.db.promise().query(sql,[idTransaction, idPayment]);
+        */
 
-        return res.json({url:url});
+        ///return res.json({url:url});
+        return res.json();
     } catch (error) {
         console.error(error);
         res.status(500).json(error);
@@ -136,10 +140,10 @@ const confirmPay = async (req) => {
     try {
         const idTransaction = req.query.transaction_id
 
-        let sql = `UPDATE payments SET idStatePay = 1 WHERE idTransaction = ?`
+        let sql = `UPDATE payments SET idStatePay = 1 WHERE idPayment = ?`
         await req.db.promise().query(sql,[idTransaction]);
 
-        sql = `SELECT * FROM payments WHERE idTransaction = ?`
+        sql = `SELECT * FROM payments WHERE idPayment = ?`
         let [result] = await req.db.promise().query(sql,[idTransaction]);
         result = result[0]
         await AddProgramming(result.idEnable, result.idStudent, idTransaction, req);
@@ -164,6 +168,7 @@ const updatePay = async(req, res) => {
         const finalResult = [];
         for (let index = 0; index < result.length; index++) {
             const element = result[index];
+            /*
             const results = await axios.post('https://api.libelula.bo/rest/deuda/consultar_deudas/por_identificador',
                 {
                     "appkey": process.env.APIKEY,
@@ -176,7 +181,9 @@ const updatePay = async(req, res) => {
                     req.query.transaction_id = element.idTransaction;
                     finalResult.push(await confirmPay(req));
                 }
-            }
+            }*/
+                req.query.transaction_id = element.idPayment;
+                finalResult.push(await confirmPay(req));
         }
         return res.json(finalResult);
     } catch (error) {

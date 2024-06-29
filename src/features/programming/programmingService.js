@@ -63,7 +63,7 @@ const AddProgramming = async (idEnable, idStudent, idTransaction, req) => {
                 VALUES (?, ?, NOW(), 0, 0, 0, 0, 0, 0, 0, "NO")`;
             const result = await req.db.promise().query(sql, [idStudent, idEnable]);
             const idProgramming = result[0].insertId;
-            sql = 'UPDATE payments SET idProgramming = ? WHERE idTransaction = ?';
+            sql = 'UPDATE payments SET idProgramming = ? WHERE idPayment = ?';
             await req.db.promise().query(sql, [idProgramming, idTransaction]);
             return true
     } catch (error) {

@@ -4,6 +4,9 @@ const mysql = require("../../database/database");
 const getAllSubjectTeacher = async (req, res) => {
   try {
     const year = req.params.year;
+    const month = req.params.month;
+    console.log(year);
+    console.log(month);
     const sql = `
       SELECT 
           ts.idTeaSub, 
@@ -16,7 +19,7 @@ const getAllSubjectTeacher = async (req, res) => {
           sub.subject
       FROM 
           teachers_subjects ts
-          ${year==='0'?'':`JOIN enable en ON en.idTeaSub = ts.idTeaSub`}
+          ${(year==='0' && month==='no')?'':`JOIN enable en ON en.idTeaSub = ts.idTeaSub`}
       JOIN 
           teachers t ON ts.idTeacher = t.idTeacher
       JOIN 
@@ -27,7 +30,18 @@ const getAllSubjectTeacher = async (req, res) => {
           careers c ON sub.idCareer = c.idCareer
       WHERE 
           ts.stateTeaSub = 'habilitado'
-          ${year==='0'?'':`AND en.month like "%${year}%"`}
+          ${year==='0'?
+              `${month==='no'?
+                  ''
+              :
+                  `AND en.month like "%${month}%"`}`
+          :
+              `AND en.month like "%${year}%"
+              ${month==='no'?
+                ''
+                :
+                `AND en.month like "%${month}%"`}
+          `}
       ORDER BY 
           FIELD(c.career, 'Sistemas informaticos', 'Mercadotecnia', 'Contaduria General', 'Secretariado'), 
           sub.year, 

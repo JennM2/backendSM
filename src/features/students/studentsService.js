@@ -168,40 +168,32 @@ const updateStudent = async (req, res) => {
         const idCareer = careerResults[0].idCareer;
 
         const currentPassword = userResults[0].password;
-        const newPassword = password ? password : currentPassword;
-    
-        try {
-            await req.db.promise().query(
-              "UPDATE users INNER JOIN students ON users.idUser = students.idUser SET users.password = ?, users.paterno = ?, users.materno = ?, users.names = ?, users.ci = ?, users.email = ?, users.phone = ?, users.stateUser = ? WHERE students.idStudent = ?",
-              [
-                newPassword,
-                paterno,
-                materno,
-                name,
-                ci,
-                email,
-                phone,
-                stateUser,
-                idStudent,
-              ]
-            );
+        console.log(currentPassword)
+        
+        const newPassword = password ? cryptPass(password) : currentPassword;
+        console.log(newPassword)
 
-            await req.db.promise().query(
-                "UPDATE students SET idCareer = ? WHERE idStudent = ?",
-                [idCareer,idStudent]
-            )
-            
-            res.status(200).json({ message: "Estudiante actualizado correctamente" });
-          } catch (error) {
-            console.error("Error al actualizar el estudiante:", error);
-            res.status(500).json({
-              error:
-                "Error del servidor al actualizar secretario en la base de datos",
-            });
-          } finally {
-            connection.release();
-          }
+        await req.db.promise().query(
+            "UPDATE users INNER JOIN students ON users.idUser = students.idUser SET users.password = ?, users.paterno = ?, users.materno = ?, users.names = ?, users.ci = ?, users.email = ?, users.phone = ?, users.stateUser = ? WHERE students.idStudent = ?",
+            [
+            newPassword,
+            paterno,
+            materno,
+            name,
+            ci,
+            email,
+            phone,
+            stateUser,
+            idStudent,
+            ]
+        );
 
+        await req.db.promise().query(
+            "UPDATE students SET idCareer = ? WHERE idStudent = ?",
+            [idCareer,idStudent]
+        )
+        
+        return res.status(200).json({ message: "Estudiante actualizado correctamente" });
     } catch (error) {
         console.error('Error al actualizar el estudiante:', error);
         res.status(500).json({ message : 'Error del servidor al actualizar estudiante en la base de datos'});

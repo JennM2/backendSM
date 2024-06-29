@@ -140,26 +140,33 @@ const updateTeacher = async (req, res) => {
         .status(400)
         .json({ message: `Debe ingresar: ${errors}` });
     }
-
-
     // Iniciar una transacción
 
-    try {
-      // Actualizar los datos del docente en la tabla users
-      await req.db.promise().query(
-        "UPDATE users SET password = ?, paterno = ?, materno = ?, names = ?, ci = ?, email = ?, phone = ?, stateUser = ? WHERE idUser = (SELECT idUser FROM teachers WHERE idTeacher = ?)",
-        [password, paterno, materno, names, ci, email, phone, stateUser, idTeacher]
-      );
+    const [teacherResults] = await req.db.promise().query(
+      "SELECT * FROM teachers WHERE idTeacher = ?",
+      [idTeacher]
+    );
 
-      // Confirmar la transacción
-      res.status(200).json({ message: "Docente actualizado correctamente" });
-    } catch (error) {
-      // Si ocurre algún error, hacer rollback de la transacción
-      console.error("Error al actualizar el docente:", error);
-      res.status(500).json({
-        message: "Error del servidor al actualizar docente en la base de datos",
-      });
+    if (teacherResults.length === 0) {
+      return res.status(404).json({ message: "Administrador no encontrado" });
     }
+
+    const [userResults] = await req.db.promise().query(
+      "SELECT users.password FROM users INNER JOIN teachers ON users.idUser = teachers.idUser WHERE teachers.idTeacher = ?",
+      [idTeacher]
+    );
+
+    if (userResults.length === 0) {
+        return res.status(404).json({ message: "Usuario no encontrado" });
+    }
+    const currentPassword = userResults[0].password;
+    const newPassword = password ? cryptPass(password) : currentPassword;
+
+    await req.db.promise().query(
+      "UPDATE users SET password = ?, paterno = ?, materno = ?, names = ?, ci = ?, email = ?, phone = ?, stateUser = ? WHERE idUser = (SELECT idUser FROM teachers WHERE idTeacher = ?)",
+      [newPassword, paterno, materno, names, ci, email, phone, stateUser, idTeacher]
+    );
+    res.status(200).json({ message: "Docente actualizado correctamente" });
   } catch (error) {
     console.error("Error al actualizar el docente:", error);
     res
