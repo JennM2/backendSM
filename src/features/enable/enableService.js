@@ -413,12 +413,12 @@ const updateEvaluation = async (req, res) => {
 
         let [response] = await req.db.promise().query(sql,[idProgramming]);
 
-        const newNumEvaluation = (response[0].numEvaluations + 1);
+        const newNumEvaluation = Number(Number(response[0].numEvaluations) + 1).toFixed(0);
 
-        const newScoreQ1 = (response[0].scoreQ1 + data.q1);
-        const newScoreQ2 = (response[0].scoreQ2 + data.q2);
-        const newScoreQ3 = (response[0].scoreQ3 + data.q3);
-        const newScoreQ4 = (response[0].scoreQ4 + data.q4);
+        const newScoreQ1 = Number(Number(response[0].scoreQ1) + Number(data.q1)).toFixed(0);
+        const newScoreQ2 = Number(Number(response[0].scoreQ2) + Number(data.q2)).toFixed(0);
+        const newScoreQ3 = Number(Number(response[0].scoreQ3) + Number(data.q3)).toFixed(0);
+        const newScoreQ4 = Number(Number(response[0].scoreQ4) + Number(data.q4)).toFixed(0);
 
 
         sql = ` UPDATE enable

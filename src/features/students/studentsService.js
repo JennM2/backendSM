@@ -149,7 +149,7 @@ const updateStudent = async (req, res) => {
         }
 
         const [userResults] = await req.db.promise().query(
-            "SELECT users.password FROM users INNER JOIN students ON users.idUser = students.idUser WHERE students.idStudent = ?",
+            "SELECT users.password, students.idCareer FROM users INNER JOIN students ON users.idUser = students.idUser WHERE students.idStudent = ?",
             [idStudent]
             );
         
@@ -168,10 +168,19 @@ const updateStudent = async (req, res) => {
         const idCareer = careerResults[0].idCareer;
 
         const currentPassword = userResults[0].password;
-        console.log(currentPassword)
+        const currentIdCareer = userResults[0].idCareer;
+
+        if(currentIdCareer!==idCareer){
+            const [programingResults] = await req.db.promise().query(
+                "SELECT * FROM programming WHERE idStudent = ?",
+                [idStudent]
+                );
+            if(programingResults.length > 0){
+                return res.status(404).json({ message: "No se puede cambiar de carrera por materias existentes" });
+            }
+        }
         
         const newPassword = password ? cryptPass(password) : currentPassword;
-        console.log(newPassword)
 
         await req.db.promise().query(
             "UPDATE users INNER JOIN students ON users.idUser = students.idUser SET users.password = ?, users.paterno = ?, users.materno = ?, users.names = ?, users.ci = ?, users.email = ?, users.phone = ?, users.stateUser = ? WHERE students.idStudent = ?",

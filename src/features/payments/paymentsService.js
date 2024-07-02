@@ -5,7 +5,7 @@ const getAllpaymentbyIdStudent = async (req, res) => {
     try {
         const idStudent = req.params.idStudent;
         const sql = `
-            SELECT sub.subject, en.month, pay.datePay, sta.statePay
+            SELECT sub.subject, en.month, pay.datePay, sta.statePay, pay.amount
             FROM payments AS pay INNER JOIN programming AS pro ON pay.idProgramming = pro.idProgramming
             INNER JOIN enable as en ON pro.idEnable = en.idEnable
             INNER JOIN teachers_subjects as teaSub ON en.idTeaSub = teaSub.idTeaSub

@@ -187,7 +187,7 @@ const getHistoryByIdStudent = async (req, res) => {
         const idStudent = req.params.idStudent;
 
         let sql = `
-        SELECT sub.subject, en.month, pro.final
+        SELECT sub.subject, en.month, pro.final, if (pro.final >= 65, "Aprobado", "Reprobado") as obs
             FROM programming as pro
             INNER JOIN enable AS en ON pro.idEnable = en.idEnable
             INNER JOIN teachers_subjects AS teaSub ON en.idTeaSub = teaSub.idTeaSub
