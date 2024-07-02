@@ -97,15 +97,41 @@ const updateAdmin = async (req, res) => {
     }
 }
 
+const getConfigBackup = async (req, res) => {
+    try {
+        const sql = `SELECT * FROM configBack WHERE idconfigBack = 1`
+        let [results] = await req.db.promise().query(sql);
+        results = results[0];
+        const dayOfWeek = ['Lunes', 'Martes', 'Miercoles', 'Jueves', 'Viernes', 'Sabado', 'Domingo'];
+        if(dayOfWeek.includes(results.rule)){
+            res.json({
+                monthly:false,
+                value:results.rule
+            });
+        }else{
+            res.json({
+                monthly:true,
+                value:results.rule
+            });
+        }
+        
+    } catch (error) {
+        console.error('Error', error);
+        res.status(500).send({message:error});
+    } finally {
+        req.db.release()
+    }
+}
+
 const getAllBackup = async (req,res) => {
     try {
+        console.log(schedule.scheduledJobs['myBackUpTask']?.nextInvocation()?._date.ts);
         const folderbackUp = '../backup/';
         fs.readdir(folderbackUp, async(err, files) => {
             if (err) {
                 console.error(`Error al leer la carpeta: ${err}`);
                 return;
             }
-
             const list = [];
             // Recorrer los archivos y obtener los metadatos
             for (const file of files) {
@@ -174,22 +200,25 @@ const generateBackup = async(req, res) => {
     }
 }
 
-const configTaskBackup = (req, res) => {
+
+const configTaskBackup = async(req, res) => {
     try {
         console.log(req.body);
-        /*
         let rule = new schedule.RecurrenceRule();
         if(req.body.monthly){
-            rule.minute = 0
+            rule.date = req.body.value
         }else{
-            rule.second = 30
+            rule.dayOfWeek = ['Domingo', 'Lunes', 'Martes', 'Miercoles', 'Jueves', 'Viernes', 'Sabado'].findIndex(item=>item===req.body.value) + 1
         }
         if(schedule.scheduledJobs['myBackUpTask']){
             const tarea = schedule.scheduledJobs['myBackUpTask'];
             tarea.reschedule(rule);
         }else{
         schedule.scheduleJob('myBackUpTask',rule, backup);
-        }*/
+        }
+
+        const sql = `UPDATE configBack SET rule = ? WHERE idconfigBack = 1`
+        await req.db.promise().query(sql,[req.body.value]);
 
         res.json({ message: 'Configurado' });
     } catch (error) {
@@ -315,4 +344,4 @@ const disableAdmin = async (req, res) => {
     }
 }
 
-module.exports = { getAdmin, updateAdmin, generateBackup, getAllBackup, configTaskBackup, addAdmin, disableAdmin};
+module.exports = { getAdmin, updateAdmin, generateBackup, getAllBackup, configTaskBackup, addAdmin, disableAdmin, getConfigBackup};
