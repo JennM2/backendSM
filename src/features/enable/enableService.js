@@ -325,7 +325,11 @@ const getEnablesByIdStudent = async (req,res) => {
         let [results] = await req.db.promise().query(sql,[idStudent, idStudent, idStudent])
 
         results = results.map(item=>{
-            item.preSubject = item.preSubject.split(' ')
+            if(item.preSubject!==''){
+                item.preSubject = item.preSubject.split(' ')
+            }else{
+                item.preSubject = []
+            }
             return item
         })
 
@@ -347,7 +351,9 @@ const getEnablesByIdStudent = async (req,res) => {
         results = results.filter(item => {
             for (let index = 0; index < item.preSubject.length; index++) {
                 const element = item.preSubject[index];
+
                 if(!resultAprove.includes(element)){
+                    console.log('false');
                     return false
                 }
             }
