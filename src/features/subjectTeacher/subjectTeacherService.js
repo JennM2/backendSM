@@ -114,11 +114,15 @@ const getAllSubjectsTeacherById = async (req, res) => {
 const assignSubjectToTeacher = async (req, res) => {
   try {
 
-    const {idTeacher, subjectName} = req.body
+    const {idTeacher, subjectName, carName} = req.body
     const stateTeaSub = "habilitado"; // Agregar el estado de la asignación
 
     // Verificar si la materia ya está asignada a otro docente
-    const [idSubject] = await req.db.promise().query("SELECT idSubject FROM subjects WHERE subject = ?",[subjectName]);
+    const [idSubject] = await req.db.promise().query(`SELECT
+                idSubject
+              FROM subjects as sub
+              INNER JOIN careers as car ON sub.idCareer = car.idCareer
+              WHERE sub.subject = ? AND car.career = ?`,[subjectName,carName]);
 
 
     await req.db.promise().query("INSERT INTO teachers_subjects (idTeacher, idSubject, stateTeaSub) VALUES (?, ?, ?)",[idTeacher,idSubject[0].idSubject,stateTeaSub])
@@ -309,12 +313,16 @@ const getAllTeachersByIdSubject = async(req, res) => {
   try {
 
     const subject = req.params.subject;
+    const career = req.params.career;
 
     let sql = `SELECT
                 idSubject
-              FROM subjects
-              WHERE subject = ?`
-    let [result] = await req.db.promise().query(sql,[subject]);
+              FROM subjects as sub
+              INNER JOIN careers as car ON sub.idCareer = car.idCareer
+              WHERE sub.subject = ? AND car.career = ?`
+    let [result] = await req.db.promise().query(sql,[subject,career]);
+
+    console.log(result);
 
     const idSubject = result[0]?.idSubject || '';
 

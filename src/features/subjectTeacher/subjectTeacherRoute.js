@@ -10,6 +10,6 @@ subTeaRoute.delete('/:idTeaSub', deleteSubjectAssignment);
 subTeaRoute.get('/enable/:subject', getTeacherAndSubjectDuration);
 subTeaRoute.get('/teacher/:id', getAllSubjectsTeacherByIdTeacher);
 subTeaRoute.delete('/changeState/:idTeacherSubject', changeStateTeacherSubject);
-subTeaRoute.get('/subjectTeacher/:subject',getAllTeachersByIdSubject);
+subTeaRoute.get('/subjectTeacher/:subject/:career',getAllTeachersByIdSubject);
 
 module.exports = { subTeaRoute };

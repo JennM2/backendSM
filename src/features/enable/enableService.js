@@ -281,7 +281,7 @@ const getEnablesByIdStudent = async (req,res) => {
 
         const idStudent = req.params.idStudent;
 
-        let sql = `SELECT sub.subject, en.schedule, en.groupe, CONCAT(usTea.paterno,' ', usTea.materno,' ', usTea.names) as nameTeacher,en.dateStart, en.dateEnd, en.idEnable, en.price
+        let sql = `SELECT sub.subject, en.schedule, en.groupe, CONCAT(usTea.paterno,' ', usTea.materno,' ', usTea.names) as nameTeacher,en.dateStart, en.dateEnd, en.idEnable, en.price, sub.preSubject
             FROM enable as en
             INNER JOIN teachers_subjects as teaSub ON en.idTeaSub = teaSub.idTeaSub
             INNER JOIN teachers as tea ON teaSub.idTeacher = tea.idTeacher
@@ -323,6 +323,36 @@ const getEnablesByIdStudent = async (req,res) => {
             `;
 
         let [results] = await req.db.promise().query(sql,[idStudent, idStudent, idStudent])
+
+        results = results.map(item=>{
+            item.preSubject = item.preSubject.split(' ')
+            return item
+        })
+
+        sql = `
+            SELECT sub.code
+                    FROM programming as pro 
+                    INNER JOIN enable as en ON pro.idEnable = en.idEnable
+                    INNER JOIN teachers_subjects as teaSub ON en.idTeaSub = teaSub.idTeaSub
+                    INNER JOIN subjects as sub ON teaSub.idSubject = sub.idSubject
+                    WHERE
+                        pro.idStudent = ? AND
+                        pro.final >= 65 AND
+                        en.stateSubject = 'Finalizado'
+        `
+        let [resultAprove] = await req.db.promise().query(sql,[idStudent]);
+
+        resultAprove = resultAprove.map(item=>item.code);
+
+        results = results.filter(item => {
+            for (let index = 0; index < item.preSubject.length; index++) {
+                const element = item.preSubject[index];
+                if(!resultAprove.includes(element)){
+                    return false
+                }
+            }
+            return true
+        })
 
         const data = results.map((result) => ({
             idEnable: result.idEnable,
