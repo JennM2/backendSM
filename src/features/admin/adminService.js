@@ -141,7 +141,7 @@ const getAllBackup = async (req,res) => {
                 const stats = await fs.promises.stat(filePath);
                 const fileObj = {
                     name: file,
-                    size: `${stats.size} bytes`,
+                    size: `${stats.size} `,
                     createAt: stats.birthtime
                 };
                 list.push(fileObj);
